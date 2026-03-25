@@ -171,6 +171,7 @@ Due to the swept-back shape of the array, the outer edge sensors read lines slig
     \item \textbf{'Y' Splits}: Triggers immediately on extreme outer left/right sensors. The center stays white. Use priority rule to pick a fork.
     \item \textbf{Broken Lines (Gaps)}: If all sensors see white natively in a straight segment, trigger a \textbf{coast} state matching previous PWM.
     \item \textbf{Dead Ends}: Rapid 180-degree U-Turn to reset the center sensor lock.
+    \item \textbf{End Box Detection}: If all 14 sensors continuously read black (or the target track color) without reverting, this identifies the 30x30cm End Box. The robot immediately halts to secure the +30 points.
 \end{itemize}
 
 \subsection*{B. PID Control}
@@ -272,6 +273,7 @@ The complete system for the Round 2 trash payload task:
     \item \textbf{Tracking (Multi-Payload Memory)}: Uses a payload counter and a dynamically allocated visited-node memory array to track whether a trash cube has been gathered from the 5--10 possible pick-up spots.
     \item \textbf{Pickup Algorithm}: Standard PID logic is preempted; the robot halts precisely via Sonar + IR, deploys the grabber, lifts the payload smoothly into internal chassis storage via GPIO 1 \& 2, and restarts forward acceleration profiling.
     \item \textbf{Dump Zone Arrival Algorithm}: Leverages a dual-sensor condition logic. IR verifies the bold black target line boundary, whilst the Sonar verifies distance to the drop-off gate. Servos autonomously reverse to empty storage and finish the course.
+    \item \textbf{Inspection \& Retraction Sequence}: To comply with the strict starting box dimensions (25x25x15cm), the robotic gripper immediately retracts to a compact tucked position during system boot, run termination, or upon activation of the kill-switch.
 \end{itemize}
 
 \vspace{1em}
@@ -315,8 +317,10 @@ With 8MB of PSRAM, bulk data is shifted off the limited internal SRAM to prevent
     \item \textbf{Pin Safety}: Because our hardware diagram strictly avoids GPIO 26--38, the Octal SPI lines to the PSRAM suffer zero hardware contention.
 \end{itemize}
 
-\subsection*{Over-The-Air (OTA) Updates}
+\subsection*{Over-The-Air (OTA) Updates \& Wireless Compliance}
 Since the robot is tightly packed for competition and already uses Wi-Fi for telemetry, \textbf{ArduinoOTA} (or ESP-IDF OTA) is implemented. This allows for rapid code flashing completely wire-free, without disconnecting the main battery or exposing USB ports during track testing.
+
+\textbf{Crucial Rulebook Compliance}: To strictly adhere to the "No Wireless Communication" rule, the ESP32-S3 Wi-Fi and Bluetooth modems are \textbf{disabled by default} on boot. Wireless telemetry and OTA are exclusively enabled via manual activation inside the "Debug Mode" running off the OLED Menu. In "Run Mode", the network is guaranteed completely off to pass technical inspection seamlessly.
 
 \vspace{1em}
 \hrule

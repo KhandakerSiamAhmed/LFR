@@ -86,6 +86,7 @@ Due to the swept-back shape of the 14-sensor array, the outer edge sensors read 
 * **'Y' Splits**: Triggers immediately on extreme outer left/right sensors. The center stays on the background color. Use priority rule to pick a fork.
 * **Broken Lines (Gaps)**: If all sensors see the background color natively in a straight segment, trigger a **coast** state matching previous PWM.
 * **Dead Ends**: Rapid 180-degree U-Turn to reset the center sensor lock.
+* **End Box Detection**: If all 14 sensors continuously read the target line color without reverting, this identifies the 30x30cm End Box. The robot immediately halts to secure the +30 completion points.
 
 ### B. PID Control
 Position error utilizes a "weighted average" summation of all 14 analog streams:
@@ -190,6 +191,7 @@ The complete system for the Round 2 trash payload task:
 - **Tracking (Multi-Payload Memory)**: Uses a payload counter and a dynamically allocated visited-node memory array to track whether a trash cube has been gathered from the 5–10 possible pick-up spots.
 - **Pickup Algorithm**: Standard PID logic is preempted; the robot halts precisely via Sonar + IR, deploys the grabber, lifts the payload smoothly into internal chassis storage via GPIO 1 & 2, and restarts forward acceleration profiling.
 - **Dump Zone Arrival Algorithm**: Leverages a dual-sensor condition logic. IR verifies the bold black target line boundary, whilst the Sonar verifies distance to the drop-off gate. Servos autonomously reverse to empty storage and finish the course.
+- **Inspection & Retraction Sequence**: To comply with the strict starting box dimensions (25x25x15cm), the robotic gripper immediately retracts to a compact tucked position during system boot, run termination, or upon activation of the kill-switch.
 
 ---
 
@@ -220,8 +222,10 @@ The N16R8 variant has an absolutely massive 8MB of fast PSRAM. Since standard in
 * **Frame Buffers & Telemetry**: Full-screen graphic buffers for the OLED and logged PID performance history are pushed entirely to PSRAM.
 * **Hardware Confirmation**: Because all GPIOs from 26 to 38 were strictly avoided in our optimized pinout array, the Octal PSRAM interface is guaranteed continuous, unrestricted high-speed data flow.
 
-### Over-The-Air (OTA) Updates
+### Over-The-Air (OTA) Updates & Wireless Compliance
 Since the bot is tightly packed for competition and already utilizes Wi-Fi for telemetry, `ArduinoOTA` (or ESP-IDF OTA) is implemented. This allows flashing new code wire-free while the robot is powered entirely by its battery on the track.
+
+**Crucial Rulebook Compliance**: To strictly adhere to the "No Wireless Communication" rule, the ESP32-S3 Wi-Fi and Bluetooth modems are **disabled by default** on boot. Wireless telemetry and OTA are exclusively enabled via manual activation inside the "Debug Mode" running off the OLED Menu. In "Run Mode", the network is guaranteed completely off to pass technical inspection seamlessly.
 
 ---
 
