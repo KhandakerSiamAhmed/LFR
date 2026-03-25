@@ -1,0 +1,128 @@
+EWU NATIONAL ROBOFEST 
+DOMINATION IS DESTINY 2026
+ORGANIZED BY: EWU Robotics Club
+LINE FOLLOWER CONTEST - EVENT RULEBOOK
+[www.ewuroboticsclub.com](https://www.ewuroboticsclub.com) | ewunationalrobofest@gmail.com
+
+---
+
+### ELIGIBILITY & TEAM COMPOSITION
+* Open to all Bangladeshi students (from School, College, Polytechnic, and University).
+* Team Size: Solo or team of max 5 members.
+* Each team must register under a unique team name with one designated Team Leader.
+* Students from different institutions may form a team.
+* One person cannot register in multiple teams.
+* Multiple teams cannot use the same robot.
+* All team members must carry a valid student ID card at all times during the competition and present it immediately upon request by the organizing committee.
+
+### ROBOT SPECIFICATIONS
+* The robot must follow black line in white surface or vice versa.
+* The robot must fit inside a 25(L) x 25(W) x 15(H) cm box.
+* The Robot's weight must not exceed 1 kg.
+* Battery voltage/voltage difference between any two points of the robot must not exceed 16V DC.
+* Readymade robots are not allowed.
+* The robot must be autonomous. Any sort of external communication during runtime is prohibited.
+* The robot can associate any MCU as long as no wireless communication is used.
+* The robot must have a kill switch to pass the technical inspection.
+* The robot must run on an onboard power supply.
+* The robot should have capabilities to pick "Trash" (A 5cm x 5cm x 5cm cube with a maximum weight of 15g) and store it inside the robot.
+* The robot can adapt any system to pick up trash.
+* If the team decides to add any extension (i.e. Robotic Arm, Bucket) it must be tucked in within the allowed dimension while inspection. It can later extend to any shape as they want.
+* The robot should have the capabilities to dump trash in any way they want in a specific spot.
+
+### ARENA SPECIFICATIONS
+* The arena size will be 15ft x 10ft.
+* The arena can consist of black line in white surface or vice versa. The line width will be 30mm (±5%).
+* The arena will have a designated START POINT and END POINT.
+* Minimum Node to Node distance will be 25cm.
+* There will be sharp angles no less than 45 degrees.
+* The END POINT will have a 30 x 30 cm black box for the first round.
+* The arena will have a specific spot for picking up trash.
+* The arena will have two dumping spots. One will be optional, and the other will be at the end point for the second round.
+* The dumping spot will consist of a 30cm x 30cm x 5cm hollow box.
+* The robot can dump all the trash in either of the designated spots.
+
+### GAMEPLAY
+
+**Round 1: Qualifying Round**
+* There will be no "trash" in the qualifying round.
+* The main objective of the robot would be finishing the track in shortest time.
+* There will be 5 checkpoints in the qualifying round. Passing each checkpoint will award 100 bonus points.
+* Skipping any checkpoint is not allowed.
+* If the robot completely leaves the line, skips a significant portion of the track without following the line, remains stuck in the same place for more than 10 seconds or is touched by any team member during run will be counted as a restart. The restart will always be called by the judge.
+* A maximum of five (5) restarts is allowed in this round. Each restart will result in a 30-point deduction.
+* The maximum time allowed to complete the round is 300 seconds.
+* For every second the robot finishes before the time limit, the team will receive 1 bonus point.
+* If the robot exceeds the 300-second limit, the run will be forfeited.
+* If a team uses all five restarts, any time bonus will be cancelled, and the run will be counted as a forfeit.
+* A solid black box of size 30 cm x 30 cm will be placed at the end of the track. If the robot successfully stops inside the end point, the team will receive 30 bonus points.
+* The total score obtained in Round 1 will be added to the score of Round 2.
+
+**Round 2: Final Round**
+* All rules from the Qualifying Round will remain applicable.
+* The main objective of the robot in this round is to collect trash while following the line and dump them in the designated dumping zones.
+* A robot may choose to only follow the track without collecting trash. This will not result in disqualification, but the team will miss the bonus points associated with trash collection and dumping.
+* The track will contain five (5) checkpoints, the same as in Round 1. Passing each checkpoint will award 100 bonus points.
+* There will be 5-10 trash collection points placed around the arena. The exact locations will be revealed on the event day.
+* Teams may collect trash using any mechanism or method. Knocking over or moving a trash outside its designated position will not incur penalties or restarts, as long as the robot collects the trash.
+* Successfully collecting a trash will award 50 points per trash.
+* The robot must store collected trash within its body or storage mechanism. Dragging trashes along the track while following the line is not permitted.
+* There will be two designated dumping zones:
+  - Optional Dumping Zone: Located between the start and finish points.
+  - Final Dumping Zone: Located at the end of the track.
+* Teams are encouraged to dump all collected trash at the final dumping zone for optimal strategy. However, robots may use the optional dumping zone if needed.
+* Successfully dumping a trash object into any designated dumping zone will award 100 points per object.
+* For a dump to be considered valid, the entire object must fall inside the dumping zone. Any object falling outside the zone will not count as a successful dump.
+* Stopping at the end point does not grant any bonus points. Only successfully dumped objects contribute to dumping bonuses.
+
+### SCORING SYSTEM
+* Each team must complete the track in a single attempt.
+* The most scored team from both rounds will be the winner.
+
+**Scoring Factors:**
+* Checkpoint (CP): +100 
+* Time Bonus (T): (Total time - Lap time) in seconds
+* Restart (R): -30 
+* Stopping at end point (ST): +30 
+* Picking a trash object (PT): +50 
+* Dumping a trash object (DT): +100 
+* Clean Run Bonus (no restart) (CR): +50 
+
+**SCORE = CP + T - R + ST + PT + DT + CR**
+
+---
+
+### COMMON RULES
+* The competition track will be revealed 1 hour before the event begins. Participants may place their robot at the start point for calibration purposes only. Running the robot on the track during this period is strictly prohibited.
+* All robots must be submitted to the judges 30 minutes before the competition begins. If a team fails to submit the robot when called by the judge, it will result in disqualification. 
+* After submission, the robot may not be reprogrammed or recalibrated until its match is completed.
+* No hardware modifications are allowed after submission.
+* If a component detaches during the run, participants may reattach it without external tools or assistance.
+* There will not be any calibration time before the match starts.
+* After completing its run, the robot must be submitted again to the judges. Robots will be returned to participants only after the round has concluded.
+* Participants must enter the arena within 15 seconds after the judges call their team.
+* A maximum of two (2) team members from each team are allowed inside the arena during a run.
+* Teams cannot receive any direct or indirect assistance from other teams during their run.
+* Touching the arena while the robot is running is strictly prohibited. Any such action will result in a restart.
+* After each restart, the robot must move at least 5 cm forward for the run to be considered valid.
+* The judge's decision is final and may override or modify rules if necessary.
+* The scores from Round 1 and Round 2 will be combined to determine the Final Score.
+
+### CODE OF CONDUCT & LIABILITY
+* Any disrespect, cheating, or unsportsmanlike conduct means immediate disqualification of the entire team.
+* No appeals after results are declared.
+* Teams are solely responsible for their robots' safety and any damage caused.
+* Registration fee is non-refundable.
+* The judges shall hold the highest authority and reserve the right to interpret, modify, or enforce any rule.
+
+### PRIZES & AWARDS
+* Champion: TBA
+* 1st Runner-up: TBA
+* 2nd Runner-up: TBA
+
+### CONTACT INFO
+* Arnab Barman, Project Manager
+* East West University Robotics Club
+* +880 1603 799875
+* [www.ewuroboticsclub.com](https://www.ewuroboticsclub.com)
+* ewunationalrobofest@gmail.com
