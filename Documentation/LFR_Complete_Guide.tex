@@ -1,0 +1,329 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{amssymb} % For math and symbols
+\usepackage{tabularx} % Better table wrapping
+\usepackage{textcomp} % For text symbols like mu
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={LFR Complete Guide},
+}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{gray!5},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+
+\title{\textbf{Competition-Grade Line Following Robot (LFR) - ESP32-S3}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+This document serves as the master guide for the LFR project, merging rules, component lists, architectures, algorithms, and code.
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{Rulebook Constraints \& Track Characteristics}
+
+\subsection*{Robot Constraints}
+\begin{itemize}
+    \item \textbf{Max Dimensions}: 25cm(L) $\times$ 25cm(W) $\times$ 15cm(H)
+    \item \textbf{Max Weight}: 1kg (16V DC max voltage restriction)
+    \item \textbf{Rules}: Fully autonomous, onboard power, physical kill switch required to cut main power.
+\end{itemize}
+
+\subsection*{Arena \& Lines}
+\begin{itemize}
+    \item \textbf{Area}: 15ft x 10ft.
+    \item \textbf{Line}: 30mm width, Black on white (or white on black).
+    \item \textbf{Intersections}: Min distance between nodes is 25cm, and curve nodes/angles are at least 45 degrees.
+\end{itemize}
+
+\subsection*{Tasks (Trash Collection - Round 2)}
+\begin{itemize}
+    \item \textbf{Payload}: 5x5x5 cm cubes (Max 15g).
+    \item \textbf{Rule}: Stored \textit{internally} inside/top of the robot (no dragging). Must pick up from 5-10 spots and dump entirely in a 30x30x5cm target zone.
+\end{itemize}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{Hardware List \& Purchasing}
+
+\subsection*{Currently Owned}
+\begin{enumerate}
+    \item ESP32-S3 N16R8 Data Board
+    \item IBT2 Motor Drivers (x2)
+    \item 25GA 500 RPM DC Geared Motors (x2)
+    \item Analog 14 IR Array (Curved/Boomerang)
+    \item 16-Channel Analog Multiplexer (e.g., CD74HC4067)
+    \item 3.7V 1S 1500mAh LiPo Batteries (x3 to make 11.1V pack)
+    \item 1.3" I2C OLED Display (SSH1106) \& Rotary Encoder
+    \item Buzzer, MG90 Servos, HC-SR04+ (3.3V/5V compatible) Ultrasonic Sensor
+\end{enumerate}
+
+\subsection*{Need To Buy (Shopping List)}
+\begin{enumerate}
+    \item \textbf{Power}: DC-DC 3A Buck Step-down Power Supply Module (12V to 3.3V Fixed Output), Filtering Capacitors (2200$\mu$F, 1000$\mu$F).
+    \item \textbf{Mechanics}: 65mm Rubber Wheels x2, Ball Caster Wheel x1, Assorted standoffs/M3 screws.
+    \item \textbf{Task Additions}: Internal Trash Storage Tray, and an extra Micro Servo (e.g., MG90) for payload lifting and grab/release tasks. (Ensure all servos and sensors purchased can strictly operate on native 3.3V).
+    \item \textbf{Sensors}: MPU6050 6-Axis Gyroscope/Accelerometer module (for wobble detection and PID Auto-Tuning).
+    \item \textbf{Misc}: Voltage Detection Sensor Module (25V).
+\end{enumerate}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{Wiring \& Architecture}
+
+\begin{quote}
+\textbf{Note:} For a full, detailed breakdown of why these specific pins were chosen, please consult the independent \href{run:ESP32_S3_Pinout_Rules.md}{\texttt{ESP32\_S3\_Pinout\_Rules.md}} document. It outlines the avoidance of all Boot, Memory, and USB strapping pins.
+Additionally, while GPIO 10--13 (Motors) fall within the ADC2 range, they are utilized strictly for digital PWM output. This guarantees no hardware conflict when Core 0 activates Wi-Fi, leaving ADC1 safely available for critical analog sensors.
+\end{quote}
+
+\subsection*{ESP32-S3 Optimized Pinouts}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Component} & \textbf{Pins (GPIO)} & \textbf{Function} \\ \midrule
+\textbf{MUX Data} & 4 & ADC1\_CH3. Reads the analog value from the MUX. \\
+\textbf{Battery Volts} & 5 & ADC1\_CH4. Reads analog signal from Voltage Detection Module. \\
+\textbf{I2C Bus (OLED \& MPU6050)} & 8 (SDA), 9 (SCL) & Shared I2C bus for the OLED display and MPU6050 Gyro/Accel. Safe standard pins. \\
+\textbf{Motors (L/R)} & 10, 11, 12, 13 & IBT2 RPWM/LPWM Controls. \\
+\textbf{MUX Selects} & 14, 15, 16, 17 & Digital pins (S0-S3) to select IR sensor routing. \\
+\textbf{Rotary Enc.} & 6 (CLK), 7 (DT), 18 (SW)& UI input, Start, and Kill Switch. \\
+\textbf{HC-SR04+} & 21 (Trig), 48 (Echo)& Obstacle detection. Safe digital I/O. \\
+\textbf{Servos} & 1 (Lift), 2 (Grab/Rel.)& Actuators for payload picking \& lifting. \\
+\textbf{Interface} & 47 (Buzzer) & Buzzer output. Safe digital output. \\ \bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Battery Voltage Measurement}
+To safely monitor the 11.1V battery on a 3.3V-limited ESP32-S3 logic pin (GPIO 5):
+\begin{itemize}
+    \item \textbf{Module}: Use a standard Voltage Detection Sensor Module (which features a built-in 5:1 resistor voltage divider: 30k$\Omega$ and 7.5k$\Omega$).
+    \item \textbf{Connection}: Connect \textbf{VCC/GND} of the module to the 11.1V battery. Connect \textbf{S (Signal)} to \textbf{GPIO 5} on the ESP32-S3, and \textbf{- (Minus)} to the ESP32 GND.
+    \item \textbf{Math}: The module scales the 12.6V fully charged battery down by a factor of 5 (to max 2.52V), remaining completely safe for the 3.3V ADC. Compute voltage in code:
+\end{itemize}
+\begin{lstlisting}[language=C++, frame=none, backgroundcolor=\color{white}]
+Voltage = (analogRead(5) / 4095.0) * 3.3V * 5.0;
+\end{lstlisting}
+
+\subsection*{Power Distribution Schematic \& Circuit Arrangement}
+\begin{itemize}
+    \item \textbf{11.1V Main Bus}: The 3S LiPo battery connects directly to the VCC / GND inputs of the two IBT2 motor drivers.
+    \begin{itemize}
+        \item \textbf{Capacitor Placement}: Place the \textbf{2200$\mu$F capacitor} in parallel across this 11.1V main bus (between Battery+ and Battery-) close to the motor drivers to absorb high-current voltage spikes.
+    \end{itemize}
+    \item \textbf{3.3V Step-Down Converter (3A)}: Connected to the 11.1V bus, it drops the voltage to a stable 3.3V. This singular powerful buck converter powers the entirety of the 3.3V ecosystem: the ESP32-S3 (via 3.3V pin, NOT VIN), MG90 Servos (Lift and Grab/Release), HC-SR04+ Ultrasonic, IR Array, MUX board, OLED display, and all pull-up resistors.
+    \begin{itemize}
+        \item \textbf{Capacitor Placement}: Place the \textbf{1000$\mu$F capacitor} in parallel across the 3.3V output rails of the step-down converter to prevent logic brownouts when the servos actuate.
+    \end{itemize}
+\end{itemize}
+\textit{(Note: Because the entire logic system runs uniformly on 3.3V, no logic level shifting or voltage dividers are required on any sensor data lines).}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{Systems \& Algorithms}
+
+\subsection*{A. Line Detection}
+Due to the swept-back shape of the array, the outer edge sensors read lines slightly \textit{later} than forward center sensors.
+\begin{itemize}
+    \item \textbf{'X' / 'T' Junctions}: Code uses a short buffer (e.g., 20-50ms). When center hits black, and outer hits black shortly after, register intersection.
+    \item \textbf{'Y' Splits}: Triggers immediately on extreme outer left/right sensors. The center stays white. Use priority rule to pick a fork.
+    \item \textbf{Broken Lines (Gaps)}: If all sensors see white natively in a straight segment, trigger a \textbf{coast} state matching previous PWM.
+    \item \textbf{Dead Ends}: Rapid 180-degree U-Turn to reset the center sensor lock.
+\end{itemize}
+
+\subsection*{B. PID Control}
+Position error utilizes a "weighted average" summation of all 14 analog streams:
+
+\begin{lstlisting}[language=C++, frame=none, backgroundcolor=\color{white}, basicstyle=\ttfamily\scriptsize]
+Pos = \Sigma(sensor_val[i] \times pos_wt[i]) / \Sigma(sensor_val[i])
+Error = Pos - Zero_Center
+MotorSpeed = Base_Speed \pm ((Kp * Error) + (Ki * Integral) + (Kd * Deriv))
+\end{lstlisting}
+
+\textbf{PID Modes}:
+\begin{itemize}
+    \item \textbf{Manual Mode}: Uses hardcoded/user-entered \lstinline|Kp|, \lstinline|Ki|, and \lstinline|Kd| values.
+    \item \textbf{Auto Mode}: Uses \lstinline|kp_auto|, \lstinline|ki_auto|, and \lstinline|kd_auto| values, dynamically generated via MPU6050 analysis in the \texttt{Debug} testing session.
+\end{itemize}
+
+\subsection*{C. Auto-Tuning Mathematics (\r{A}str\"{o}m-H\"{a}gglund Relay \& Ziegler-Nichols)}
+The active "Debug" mode employs the \textbf{Relay Feedback Auto-Tuning} algorithm (\r{A}str\"{o}m \& H\"{a}gglund, 1984) combined with \textbf{Ziegler-Nichols closed-loop tuning rules}. The MPU6050 acts as the measurement instrument to dynamically calculate the ultimate gain ($K_u$) and ultimate period ($T_u$) of chassis wobble.
+
+\begin{enumerate}
+    \item \textbf{Relay Feedback Oscillation}: During a straight line segment, the robot temporarily suspends continuous proportional steering. It applies a fixed "Bang-Bang" steering amplitude (relay amplitude, $d$) to force a controlled, consistent wobble across the track line.
+    \item \textbf{Wobble Quantification}: The MPU6050's gyroscope (measuring yaw rate $\omega_z$) tracks this forced oscillation. The micro-controller measures:
+    \begin{itemize}
+        \item \textbf{Peak Amplitude ($a$)}: The physical amplitude of the resulting angular velocity wobble.
+        \item \textbf{Ultimate Period ($T_u$)}: The time (in seconds) between two consecutive oscillation peaks.
+    \end{itemize}
+    \item \textbf{Ultimate Gain ($K_u$) Calculation}: Using the Describing Function analysis of a relay, the system's ultimate gain is calculated as:
+    $$K_u = \frac{4d}{\pi a}$$
+    \textit{(Where $d$ is the steering relay magnitude, and $a$ is the measured wobble amplitude).}
+    \item \textbf{PID Parameter Derivation (Z-N Rules)}: Once $K_u$ and $T_u$ are acquired from the MPU6050 data stream over several oscillation cycles, the mathematically optimized "No-Wobble" PID tuning parameters are established:
+    \begin{itemize}
+        \item \textbf{Proportional ($K_p$)}: $K_p = 0.6 \times K_u$
+        \item \textbf{Integral ($K_i$)}: $K_i = 1.2 \times \frac{K_u}{T_u}$
+        \item \textbf{Derivative ($K_d$)}: $K_d = 0.075 \times K_u \times T_u$
+    \end{itemize}
+    \item \textbf{Boundary Clamping \& Application}: These mathematically derived parameters are verified against hard constraints to prevent integer overflow. Once bounded, they update the \lstinline|kp_auto|, \lstinline|ki_auto|, and \lstinline|kd_auto| global variables respectively. Terminating the session guarantees they are saved to EEPROM for the Speed Run phase.
+\end{enumerate}
+
+\subsection*{D. Maze Solving (LSRB Pathing)}
+\begin{itemize}
+    \item \textbf{Primary Rule}: Left-Hand Method (Priority: 1=Left, 2=Straight, 3=Right, 4=Back).
+    \item \textbf{Exploration Run}: Robot records the path string at each intersection (e.g., \lstinline|L-S-R-B-L|).
+    \item \textbf{Optimization}: After finding the end, compresses using U-Turn ('B') substitution (e.g., \lstinline|L + B + L = S| and \lstinline|L + B + R = B|).
+    \item \textbf{Speed Run}: During the final measured run, the bot follows the optimized instruction array.
+\end{itemize}
+
+\subsection*{E. Display UI, Telemetry, \& EEPROM Memory}
+All calibration and configuration are structurally managed through the OLED display and rotary encoder.
+\begin{enumerate}
+    \item \textbf{Run Mode}: 
+    \begin{itemize}
+        \item \textbf{Sparklines / Micro-charts}: The bottom 16 pixels display a scrolling line chart of the PID Error, giving a fast visual indicator of oscillation.
+        \item \textbf{Acceleration Gauge}: A visual progress bar indicates dynamically scheduled $K_p$ or base PWM scale during S-Curve/Trapezoidal profiling.
+    \end{itemize}
+    \item \textbf{Debug (Auto-Tune) Mode}:
+    \begin{itemize}
+        \item Runs auto-tuning utilizing the MPU6050.
+        \item \textbf{Web-Based Telemetry Dashboard}: Hosted natively on the ESP32 (via Core 0 \& WebSockets) exclusively in Debug mode. Serves an HTML/JS page (via SPIFFS) to plot live PID Errors, Battery Voltage, and Gyro dynamics directly to a laptop/phone using Chart.js.
+    \end{itemize}
+    \item \textbf{Calibrate Mode}: Triggers Min/Max boundary sweep logic for array sensors.
+    \item \textbf{Setup Mode}: 
+    \begin{itemize}
+        \item \textbf{PID Modes}: Toggle between Auto PID, Manual PID, and \textbf{Dynamic PID}.
+        \item \textbf{Dynamic Calibration}: Toggle real-time adaptive thresholding on/off.
+        \item \textbf{Servo Calibration}: Features explicit menu options to set and store the neutral, min, and max positions of the payload Lift and Grab servos.
+        \item Use Rotary Encoder to edit \lstinline|Kp|, \lstinline|Ki|, \lstinline|Kd|, Component Pinouts, and Motor Speeds.
+    \end{itemize}
+    \item \textbf{View Mode}: 
+    \begin{itemize}
+        \item \textbf{Graphical Sensor Array}: Instead of basic numbers, analog reads are visualized as a \textbf{live 14-bar histogram} using the SSD1106 graphics buffer, verifying the sensor "curve" instantly.
+        \item \textbf{Path Replay Visualization}: Log and instantly replay the completed string-based maze path on the OLED or the WebSockets dashboard.
+    \end{itemize}
+    \item \textbf{EEPROM Storage}: All constants and calibration arrays auto-save to EEPROM.
+\end{enumerate}
+
+\subsection*{F. Advanced Motion Control \& Sensor Fusion}
+To push beyond standard line-following limits, the architecture incorporates real-time dynamics control:
+\begin{itemize}
+    \item \textbf{Sensor Fusion (Gyro + IR)}: Actively utilizes the MPU6050 yaw ($\omega_z$) data during standard runs. If the robot encounters a significant line gap where all IR sensors read the background, the gyroscope enables closed-loop dead-reckoning to confidently maintain the precise heading until the line is reacquired.
+    \item \textbf{Turn Angle Detection via MPU6050}: Validates mathematically true 90$^\circ$ and 180$^\circ$ U-Turns through raw yaw integration. This completely replaces standard time/delay-based turn calculations, dramatically increasing accuracy.
+    \item \textbf{Trapezoidal / S-Curve Motion Profiling}: Implements algorithmic acceleration and deceleration curves rather than instantaneous PID base speed jumps. Ramping the motor PWMs prevents traction loss (wheel slip) and chassis jolts when accelerating out of corners or hard braking into acute intersections.
+    \item \textbf{PID Gain Scheduling}: Replaces static PID tuning with dynamic arrays. The system smoothly interpolates between different $K_p$, $K_i$, and $K_d$ sets depending on the track curvature and forward velocity. High-speed straightaways utilize high $K_d$ and low $K_p$ for stability, while sharp, slow corners seamlessly shift to a high $K_p$ for aggressive turning.
+\end{itemize}
+
+\subsection*{G. Sonar Sensor (HC-SR04+) Implementation}
+Crucial for the NRF26 rulebook trash collection mechanics:
+\begin{itemize}
+    \item \textbf{Non-Blocking FreeRTOS on Core 0}: The standard \lstinline|pulseIn()| function inherently blocks Core 1's PID controller loop. To maintain flight-controller speeds, Sonar runs entirely asynchronously via a hardware interrupt + timer architecture mapped to Core 0.
+    \item \textbf{Detection Logic}: Safely identifies general obstacles, triggers the payload grab sequence when a target cube enters the 3--5cm physical striking boundary, and validates physical proximity against the 30x30x5cm end target zone wall. 
+\end{itemize}
+
+\subsection*{H. Payload Handling \& Trash Dump Logic}
+The complete system for the Round 2 trash payload task:
+\begin{itemize}
+    \item \textbf{Tracking (Multi-Payload Memory)}: Uses a payload counter and a dynamically allocated visited-node memory array to track whether a trash cube has been gathered from the 5--10 possible pick-up spots.
+    \item \textbf{Pickup Algorithm}: Standard PID logic is preempted; the robot halts precisely via Sonar + IR, deploys the grabber, lifts the payload smoothly into internal chassis storage via GPIO 1 \& 2, and restarts forward acceleration profiling.
+    \item \textbf{Dump Zone Arrival Algorithm}: Leverages a dual-sensor condition logic. IR verifies the bold black target line boundary, whilst the Sonar verifies distance to the drop-off gate. Servos autonomously reverse to empty storage and finish the course.
+\end{itemize}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{Assembly \& Best Practices}
+
+\begin{enumerate}
+    \item \textbf{Isolation \& Power}: Even though the external 3.3V buck converter can supply 3 Amps, ensure the servos are powered directly from the buck converter's output pads, \textit{not} daisy-chained through the ESP32-S3 development board. This prevents servo stall-currents from browning out the microcontroller.
+    \item \textbf{IR Array Height}: The 14 IR Array should sit around \textbf{3mm - 5mm} off the floor. 
+    \item \textbf{PID Tuning Flow}:
+    \begin{itemize}
+        \item Set Kp, Ki, Kd to 0.
+        \item Ramp \lstinline|Kp| up until the chassis visibly oscillates/wiggles over the line.
+        \item Reduce \lstinline|Kp| slightly, then ramp \lstinline|Kd| to smooth/dampen those wobbles out.
+        \item Increase \lstinline|Ki| slightly only if the robot drifts heavily on long wide curves.
+    \end{itemize}
+\end{enumerate}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{Advanced ESP32-S3 Features: Dual-Core \& PSRAM}
+
+\subsection*{FreeRTOS Dual-Core Utilization}
+The ESP32-S3 features two Xtensa LX7 cores. To prevent operations like updating the OLED screen from interrupting the fast motor control loop, tasks are split using FreeRTOS:
+\begin{itemize}
+    \item \textbf{Core 0 (PRO\_CPU)}: Handles non-time-critical background tasks such as I2C OLED rendering, rotary encoder UI processing, and basic state tracking.
+    \item \textbf{Core 1 (APP\_CPU)}: Dedicated exclusively to high-speed robotic operations. Executes MUX analog reads, PID error calculations, and motor PWM updates, guaranteeing zero-latency line following.
+    \item \textbf{Concurrency \& Protection}: To prevent hardware collisions (e.g., I2C bus and timing crashes), peripheral access is strictly isolated. \textbf{Only Core 0} is allowed to touch the I2C bus. Core 1 passes shared data safely using \textbf{FreeRTOS Queues} or \textbf{Mutexes}.
+    \item \textbf{Implementation}: Enabled via \lstinline|xTaskCreatePinnedToCore()| during standard setup, enforcing strict parallelism.
+\end{itemize}
+
+\subsection*{Octal PSRAM (8MB) Utilization}
+With 8MB of PSRAM, bulk data is shifted off the limited internal SRAM to prevent stack-overflows:
+\begin{itemize}
+    \item \textbf{Maze Path Arrays}: Node histories constraints are completely lifted. Intersections are dynamically allocated in PSRAM using \lstinline|ps_malloc()|.
+    \item \textbf{Telemetry Data}: Intensive run logs or full graphical display buffers can safely occupy PSRAM.
+    \item \textbf{Pin Safety}: Because our hardware diagram strictly avoids GPIO 26--38, the Octal SPI lines to the PSRAM suffer zero hardware contention.
+\end{itemize}
+
+\subsection*{Over-The-Air (OTA) Updates}
+Since the robot is tightly packed for competition and already uses Wi-Fi for telemetry, \textbf{ArduinoOTA} (or ESP-IDF OTA) is implemented. This allows for rapid code flashing completely wire-free, without disconnecting the main battery or exposing USB ports during track testing.
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+\section{References \& Links}
+\begin{itemize}
+    \item \textbf{HC-SR04+ Ultrasonic Sensor}: \href{https://store.roboticsbd.com/sensors/2446-hc-sr04-plus-ultrasonic-sonar-sensor-2021-33v-5v-robotics-bangladesh.html}{RoboticsBD - 3.3V/5V Compatible Sonar Sensor}
+    \item \textbf{Voltage Detection Module}: \href{https://store.roboticsbd.com/sensors/2675-voltage-detection-sensor-module-25v-robotics-bangladesh.html}{RoboticsBD - 25V Voltage Sensor Module}
+    \item \textbf{PID Auto-Tuning Research}: \r{A}str\"{o}m, K. J., \& H\"{a}gglund, T. (1984). "Automatic tuning of simple regulators with specifications on phase and amplitude margins." \textit{Automatica}, 20(5), 645-651. \href{https://en.wikipedia.org/wiki/Ziegler\%E2\%80\%93Nichols_method}{Wikipedia: Ziegler-Nichols tuning}
+\end{itemize}
+
+\end{document}
