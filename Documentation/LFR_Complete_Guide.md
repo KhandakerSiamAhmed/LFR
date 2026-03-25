@@ -130,7 +130,10 @@ All calibration, tuning, and diagnostics are structured through the OLED display
 
 #### Main OLED Menu Structure:
 1. **Run**: 
-   * Starts the robot's active line-following routine. 
+   * Provides a sub-menu to definitively select the stage of the competition:
+     * **Speed Run**: Classic track loop following as fast as possible.
+     * **Maze Explorer**: Solves an unknown maze using the Left/Right/Straight (LSRB) rule and maps the nodes.
+     * **Maze Runner**: Follows the optimized, mapped path from a completed Explorer run at maximum speed.
    * **Sparklines / Micro-charts**: The bottom 16 pixels of the OLED draw a continuous scrolling line chart (sparkline) of the PID Error to provide a fast visual indicator of chassis oscillation without staring at rapidly changing text.
    * **Acceleration/Velocity UI Gauge**: Displays a small visual progress bar on the OLED indicating the current dynamically scheduled $K_p$ or the base PWM power scale during S-Curve/Trapezoidal profiling.
    * Pressing the encoder button during a run triggers a **Pause State**. Motors halt immediately.
@@ -150,6 +153,7 @@ All calibration, tuning, and diagnostics are structured through the OLED display
    * Select **PID Mode**: Toggle between **Auto PID** (utilizes the tuned `kp_auto` set), **Manual PID**, and **Dynamic PID** (gain scheduling based on track curvature).
    * Adjust **PID values** (`Kp`, `Ki`, `Kd`) explicitly for Manual mode.
    * Toggle **Dynamic Calibration**: Turn real-time adaptive thresholding on or off during runs.
+   * **Default Turn Priority**: Configure the default dead-end / split-path behavior for pure Speed Runs or Explorer rules ("L/R/S").
    * **Servo Calibration**: Explicit OLED menu options to set and store neutral, minimum, and maximum payload servo positions.
    * Set **Base Speeds** independently for Left (`Base_L`) and Right (`Base_R`) motors.
    * Change hardware **Pinouts** dynamically.
@@ -166,7 +170,7 @@ All calibration, tuning, and diagnostics are structured through the OLED display
 #### Wireless Live-Tuning (Testing Phase)
 During the testing phase, the ESP32-S3 utilizes its onboard WiFi/Bluetooth to connect to a host interface (e.g., phone app or laptop). The robot can receive real-time packets containing new `Kp`, `Kd`, `Ki`, and `Base Speed (L/R)` values physically *during* a run. This allows adaptive tuning on the fly without ever stopping the robot.
 
-**EEPROM Save/Load**: All adjusted PID constants, separated motor speeds, menu configurations, and sensor calibration arrays are automatically saved to the ESP32's non-volatile storage (NVS/EEPROM). Restarting the robot instantly reloads the perfect profile.
+**EEPROM Save/Load**: All adjusted PID constants, separated motor speeds, menu configurations, default turn priorities, and sensor calibration arrays are automatically written permanently to the ESP32's non-volatile storage (NVS/EEPROM). Every parameter is preserved completely across power cycles. Restarting the robot instantly reloads the entire perfect profile exactly as left.
 
 ### F. Advanced Motion Control & Sensor Fusion
 To push beyond standard line-following limits, the architecture incorporates real-time dynamics control:

@@ -219,10 +219,11 @@ The active "Debug" mode employs the \textbf{Relay Feedback Auto-Tuning} algorith
 \end{itemize}
 
 \subsection*{E. Display UI, Telemetry, \& EEPROM Memory}
-All calibration and configuration are structurally managed through the OLED display and rotary encoder.
+All calibration, tuning, and diagnostics are structurally managed through the OLED display and rotary encoder.
 \begin{enumerate}
     \item \textbf{Run Mode}: 
     \begin{itemize}
+        \item \textbf{Run Sub-menu}: Provides explicit selection between \textbf{Speed Run} (classic track loop), \textbf{Maze Explorer} (solves an unknown maze using LSRB and maps the nodes), and \textbf{Maze Runner} (follows the strictly optimized compiled path).
         \item \textbf{Sparklines / Micro-charts}: The bottom 16 pixels display a scrolling line chart of the PID Error, giving a fast visual indicator of oscillation.
         \item \textbf{Acceleration Gauge}: A visual progress bar indicates dynamically scheduled $K_p$ or base PWM scale during S-Curve/Trapezoidal profiling.
     \end{itemize}
@@ -236,6 +237,7 @@ All calibration and configuration are structurally managed through the OLED disp
     \begin{itemize}
         \item \textbf{PID Modes}: Toggle between Auto PID, Manual PID, and \textbf{Dynamic PID}.
         \item \textbf{Dynamic Calibration}: Toggle real-time adaptive thresholding on/off.
+        \item \textbf{Default Turn Priority}: Configure the default dead-end / split-path behavior for Speed Runs or Explorer rules ("L/R/S").
         \item \textbf{Servo Calibration}: Features explicit menu options to set and store the neutral, min, and max positions of the payload Lift and Grab servos.
         \item Use Rotary Encoder to edit \lstinline|Kp|, \lstinline|Ki|, \lstinline|Kd|, Component Pinouts, and Motor Speeds.
     \end{itemize}
@@ -244,7 +246,7 @@ All calibration and configuration are structurally managed through the OLED disp
         \item \textbf{Graphical Sensor Array}: Instead of basic numbers, analog reads are visualized as a \textbf{live 14-bar histogram} using the SSD1106 graphics buffer, verifying the sensor "curve" instantly.
         \item \textbf{Path Replay Visualization}: Log and instantly replay the completed string-based maze path on the OLED or the WebSockets dashboard.
     \end{itemize}
-    \item \textbf{EEPROM Storage}: All constants and calibration arrays auto-save to EEPROM.
+    \item \textbf{EEPROM Storage}: All constants, default turn priorities, and calibration arrays auto-save to EEPROM permanently across power cycles.
 \end{enumerate}
 
 \subsection*{F. Advanced Motion Control \& Sensor Fusion}
