@@ -183,6 +183,7 @@ To push beyond standard line-following limits, the architecture incorporates rea
 Crucial for the NRF26 rulebook trash collection mechanics:
 - **Non-Blocking FreeRTOS on Core 0**: The standard `pulseIn()` function inherently blocks Core 1's PID controller loop. To maintain flight-controller speeds, Sonar runs entirely asynchronously via a hardware interrupt + timer architecture mapped to Core 0.
 - **Detection Logic**: Safely identifies general obstacles, triggers the payload grab sequence when a target cube enters the 3–5cm physical striking boundary, and validates physical proximity against the 30x30x5cm end target zone wall.
+- **Payload Carry Override**: Once a payload is successfully grabbed and lifted into internal storage, the sonar signal is intentionally neglected / software-muted. This prevents false-positive obstacle detections triggered by the physical payload sitting in front of the sweeping sensor beam.
 
 ### H. Payload Handling & Trash Dump Logic
 The complete system for the Round 2 trash payload task:
