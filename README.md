@@ -15,8 +15,9 @@ A highly advanced, fully autonomous Line Following Robot built for competition. 
 - **Trash Collection (Task)**: Integrated Sonar (HC-SR04+) mapping with an internal lift/grab payload mechanism via MG90 Servos for multi-node trash pickup and dumping.
 - **Comprehensive UI & Telemetry**: 
   - Onboard 1.3" OLED Display for sensor viewing, PID editing, and servo calibration.
-  - Live WebSockets Telemetry dashboard plotting PID errors, battery voltage, and gyro data to a laptop/phone in real-time.
+  - Live WebSockets Telemetry dashboard plotting PID errors, battery voltage, and gyro data to a laptop/phone in real-time. (Note: Network features are strictly disabled by default to comply with competition rules, and can only be activated via the onboard Setup UI).
 - **Persistent Memory**: Saves all thresholds, constants, and calibration data automatically to EEPROM. The robot indefinitely remembers its last calibration setup until a new sequence is requested, functioning right out of the box after power cycles.
+- **Strict Rulebook Compliance**: Incorporates automated physical payload inspection-retraction sequences and an algorithmic End Box halt detection sequence to guarantee max competition scores.
 
 ## 🛠️ Hardware Stack
 
