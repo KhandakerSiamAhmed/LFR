@@ -231,7 +231,7 @@ All calibration and configuration are structurally managed through the OLED disp
         \item Runs auto-tuning utilizing the MPU6050.
         \item \textbf{Web-Based Telemetry Dashboard}: Hosted natively on the ESP32 (via Core 0 \& WebSockets) exclusively in Debug mode. Serves an HTML/JS page (via SPIFFS) to plot live PID Errors, Battery Voltage, and Gyro dynamics directly to a laptop/phone using Chart.js.
     \end{itemize}
-    \item \textbf{Calibrate Mode}: Triggers Min/Max boundary sweep logic for array sensors.
+    \item \textbf{Calibrate Mode}: Triggers Min/Max boundary sweep logic for array sensors. Thresholds are calculated and \textbf{saved automatically and permanently to EEPROM}. The robot will remember its last calibration setup indefinitely and load it instantly on boot, until a new calibration sequence is strictly triggered by the user.
     \item \textbf{Setup Mode}: 
     \begin{itemize}
         \item \textbf{PID Modes}: Toggle between Auto PID, Manual PID, and \textbf{Dynamic PID}.

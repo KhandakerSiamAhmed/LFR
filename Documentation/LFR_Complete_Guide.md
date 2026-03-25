@@ -145,7 +145,7 @@ All calibration, tuning, and diagnostics are structured through the OLED display
 3. **Calibrate**: 
    * Automates sensor tuning. The bot pauses for 1 second, then auto-rotates (spins in place) for 5 seconds.
    * While rotating, it takes continuous raw readings from all 14 sensors to find sweeping minimum (lowest) and maximum (highest) values.
-   * Thresholds are calculated and saved automatically, followed by a summary screen displaying the new threshold for each sensor.
+   * Thresholds are calculated and **saved automatically and permanently to EEPROM**. The robot will remember its last calibration setup indefinitely and load it instantly on boot, until a new calibration sequence is strictly triggered by the user.
 4. **Setup**: 
    * Select **PID Mode**: Toggle between **Auto PID** (utilizes the tuned `kp_auto` set), **Manual PID**, and **Dynamic PID** (gain scheduling based on track curvature).
    * Adjust **PID values** (`Kp`, `Ki`, `Kd`) explicitly for Manual mode.

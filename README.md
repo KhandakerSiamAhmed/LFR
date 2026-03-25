@@ -16,6 +16,7 @@ A highly advanced, fully autonomous Line Following Robot built for competition. 
 - **Comprehensive UI & Telemetry**: 
   - Onboard 1.3" OLED Display for sensor viewing, PID editing, and servo calibration.
   - Live WebSockets Telemetry dashboard plotting PID errors, battery voltage, and gyro data to a laptop/phone in real-time.
+- **Persistent Memory**: Saves all thresholds, constants, and calibration data automatically to EEPROM. The robot indefinitely remembers its last calibration setup until a new sequence is requested, functioning right out of the box after power cycles.
 
 ## 🛠️ Hardware Stack
 
