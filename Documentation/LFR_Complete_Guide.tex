@@ -240,6 +240,7 @@ All calibration, tuning, and diagnostics are structurally managed through the OL
         \item \textbf{Dynamic Calibration}: Toggle real-time adaptive thresholding on/off.
         \item \textbf{Default Turn Priority}: Configure the default dead-end / split-path behavior for Speed Runs or Explorer rules ("L/R/S").
         \item \textbf{Servo Calibration}: Features explicit menu options to set and store the neutral, min, and max positions of the payload Lift and Grab servos.
+        \item \textbf{Network / Modems}: Manually enable/disable Wi-Fi and Bluetooth. \textit{(Note: Any parameter or function toggle located in multiple menus acts uniformly. Toggling Wi-Fi here completely syncs the robot state universally, applying equally to the Debug Web-Dashboard and blocking constraints).}
         \item Use Rotary Encoder to edit \lstinline|Kp|, \lstinline|Ki|, \lstinline|Kd|, Component Pinouts, and Motor Speeds.
     \end{itemize}
     \item \textbf{View Mode}: 
@@ -320,7 +321,7 @@ With 8MB of PSRAM, bulk data is shifted off the limited internal SRAM to prevent
 \subsection*{Over-The-Air (OTA) Updates \& Wireless Compliance}
 Since the robot is tightly packed for competition and already uses Wi-Fi for telemetry, \textbf{ArduinoOTA} (or ESP-IDF OTA) is implemented. This allows for rapid code flashing completely wire-free, without disconnecting the main battery or exposing USB ports during track testing.
 
-\textbf{Crucial Rulebook Compliance}: To strictly adhere to the "No Wireless Communication" rule, the ESP32-S3 Wi-Fi and Bluetooth modems are \textbf{disabled by default} on boot. Wireless telemetry and OTA are exclusively enabled via manual activation inside the "Debug Mode" running off the OLED Menu. In "Run Mode", the network is guaranteed completely off to pass technical inspection seamlessly.
+\textbf{Crucial Rulebook Compliance}: To strictly adhere to the "No Wireless Communication" rule, the ESP32-S3 Wi-Fi and Bluetooth modems are \textbf{disabled by default} on boot. Wireless telemetry and OTA are exclusively enabled via manual activation inside the \textbf{Setup Mode} running off the OLED Menu. In "Run Mode", the network is guaranteed completely off to pass technical inspection seamlessly. Any feature (like Wi-Fi) toggled across different menus will mathematically sync globally to prevent accidental broadcasts.
 
 \vspace{1em}
 \hrule

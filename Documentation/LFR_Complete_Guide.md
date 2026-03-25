@@ -160,7 +160,7 @@ All calibration, tuning, and diagnostics are structured through the OLED display
    * Change hardware **Pinouts** dynamically.
    * Manually override **Thresholds** for individual sensors.
    * Toggle **Track Color Mode** ("Dark Line on Light" vs "Light Line on Dark").
-   * **WiFi/Bluetooth Settings**: Enable/disable transceivers and set pairing modes.
+   * **WiFi/Bluetooth Settings**: Enable/disable transceivers and set pairing modes. *(Note: Any duplicate function across different menus—like toggling Wi-Fi—acts as a synced global state. Enabling it here perfectly sets the identical state for Debug modes.)*
 5. **View**: 
    * **Analog Values**: Real-time live view of raw inputs from each IR sensor. **Graphical Sensor Array Visualization:** Instead of displaying a plain array of 14 numbers, the SSD1106 graphical capabilities draw a **live 14-bar histogram**, allowing you to instantly see which sensors are active and verify the "curve" of your analog reads visually.
    * **Path Replay Visualization**: Log and instantly replay the completed string-based maze path on the OLED or the WebSockets dashboard.
@@ -225,7 +225,7 @@ The N16R8 variant has an absolutely massive 8MB of fast PSRAM. Since standard in
 ### Over-The-Air (OTA) Updates & Wireless Compliance
 Since the bot is tightly packed for competition and already utilizes Wi-Fi for telemetry, `ArduinoOTA` (or ESP-IDF OTA) is implemented. This allows flashing new code wire-free while the robot is powered entirely by its battery on the track.
 
-**Crucial Rulebook Compliance**: To strictly adhere to the "No Wireless Communication" rule, the ESP32-S3 Wi-Fi and Bluetooth modems are **disabled by default** on boot. Wireless telemetry and OTA are exclusively enabled via manual activation inside the "Debug Mode" running off the OLED Menu. In "Run Mode", the network is guaranteed completely off to pass technical inspection seamlessly.
+**Crucial Rulebook Compliance**: To strictly adhere to the "No Wireless Communication" rule, the ESP32-S3 Wi-Fi and Bluetooth modems are **disabled by default** on boot. Wireless telemetry and OTA are exclusively enabled via a manual toggle inside the **Setup Mode** of the OLED Menu. In "Run Mode", the network is guaranteed completely off to pass technical inspection seamlessly. To maintain state consistency, any shared function (like the Wi-Fi toggle) existing in multiple sub-menus acts as a global sync—toggling it anywhere instantly updates the entire robot's core state.
 
 ---
 
